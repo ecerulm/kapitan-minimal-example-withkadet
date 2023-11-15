@@ -1,0 +1,12 @@
+version: 0.32
+compile:
+  prune: true
+  embed-refs: true
+  fetch: false
+  yaml-dump-null-as-empty: false
+  compose-node-name: true
+  refs-path: ./system/refs
+  jinja2-filters: ./system/templates/jinja2_filters.py
+  
+refs:
+  refs-path: ./system/refs

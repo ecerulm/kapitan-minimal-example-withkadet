@@ -1,0 +1,41 @@
+parameters:
+  namespace: kuard-demo-dev
+  target_name: ${_reclass_:name:short}
+  kapitan:
+    vars:
+      target: ${target_name}
+    dependencies:
+    - type: git
+      source: https://github.com/kapicorp/generators.git
+      ref: main
+      subdir: lib/
+      output_path: lib/
+    - type: git
+      source: https://github.com/kapicorp/generators.git
+      ref: main
+      subdir: kubernetes
+      output_path: system/generators/kubernetes
+
+    compile:
+    - output_path: manifests
+      input_type: kadet
+      output_type: yml
+      input_paths:
+        - system/generators/kubernetes
+
+  generators:
+    kubernetes:
+      namespace:
+        name:
+          name: ${namespace}
+    manifest:
+      default_config:
+        namespace: ${namespace}
+        type: deployment
+        service_account:
+          create: false
+        annotations:
+          "manifests.kapicorp.com/generated": "true"
+  components:
+    aaa:
+      image: jmalloc/echo-server
