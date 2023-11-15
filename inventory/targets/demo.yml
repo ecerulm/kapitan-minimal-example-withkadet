@@ -1,5 +1,5 @@
 parameters:
-  namespace: kuard-demo-dev
+  namespace: kuard-test
   target_name: ${_reclass_:name:short}
   kapitan:
     vars:
@@ -37,5 +37,41 @@ parameters:
         annotations:
           "manifests.kapicorp.com/generated": "true"
   components:
-    aaa:
-      image: jmalloc/echo-server
+    kuard:
+      image:  gcr.io/kuar-demo/kuard-amd64:1
+      ports:
+        myhttp:
+          service_port: 80
+          container_port: 8080
+
+      pull_policy: Always
+      security_context:
+        runAsNonRoot: true
+        runAsUser: 65534
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      service:
+        type: ClusterIP
+
+  # configures the ingress generator
+  ingresses:
+    kuard:
+      annotations:
+        "cert-manager.io/issuer": "letsencrypt-staging"
+      host: kuard.rubenlaguna.com
+      tls:
+        - hosts:
+            - kuard.rubenlaguna.com
+          secretName: quickstart-example-tls
+      paths:
+        - backend:
+            service:
+              name: kuard
+              port:
+                number: 80
+          path: /
+          pathType: Prefix

@@ -2,8 +2,33 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    name: kuard-demo-dev
-  name: kuard-demo-dev
+    name: kuard-test
+  name: kuard-test
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-staging
+  labels:
+    name: kuard
+  name: kuard
+spec:
+  rules:
+    - host: kuard.rubenlaguna.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: kuard
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - kuard.rubenlaguna.com
+      secretName: quickstart-example-tls
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -11,15 +36,15 @@ metadata:
   annotations:
     manifests.kapicorp.com/generated: 'true'
   labels:
-    app.kapicorp.dev/component: aaa
-    name: aaa
-  name: aaa
-  namespace: kuard-demo-dev
+    app.kapicorp.dev/component: kuard
+    name: kuard
+  name: kuard
+  namespace: kuard-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: aaa
+      name: kuard
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -28,11 +53,43 @@ spec:
   template:
     metadata:
       labels:
-        name: aaa
+        name: kuard
     spec:
       containers:
-        - image: jmalloc/echo-server
-          imagePullPolicy: IfNotPresent
-          name: aaa
+        - image: gcr.io/kuar-demo/kuard-amd64:1
+          imagePullPolicy: Always
+          name: kuard
+          ports:
+            - containerPort: 8080
+              name: myhttp
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kapicorp.dev/component: kuard
+    name: kuard
+  name: kuard
+  namespace: kuard-test
+spec:
+  ports:
+    - name: myhttp
+      port: 80
+      protocol: TCP
+      targetPort: myhttp
+  selector:
+    name: kuard
+  sessionAffinity: None
+  type: ClusterIP
