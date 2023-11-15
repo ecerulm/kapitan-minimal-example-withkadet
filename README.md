@@ -83,9 +83,26 @@ spec:
 ```
 
 
+First we need a `.kapitan` file that sets up some options 
+* `.compile.fetch` is set to `true` so that the dependencies are downloaded. The dependencies are setup in the `.parameters.kapitan.dependencies`
+* `.compile.prune` will remove keys with `null` values , the kadet's kubernetes generator for example will generate
+```
+kind: Namespace
+metadata:
+    name: xxxx
+    namespace: null
+```
+by setting `prune` we ensure that `namespace: null` is removed from the output
+
+
+
 You need a target in this case `demo` which is defined at `inventory/targets/demo.yml`. 
 
-That target defines
+That target defines some stuff
+* `.parameters.kapitan.var.target`. This is mandatory to set
+* `.parameters.kapitan.dependencies`
+  * will dowload the kadet's kubernetes generator when you use `./kapitan compile --fetch`
 
-* xxx
-* yyy 
+* `.parameters.kapitan.compile`, runs the kadet kubernetes generators that where downloaded (as a dependencie) in `system/generators/kubernetes`
+
+* `.parameters.generators`, sets some options for the generator that will be used by the generator as defaults, 
