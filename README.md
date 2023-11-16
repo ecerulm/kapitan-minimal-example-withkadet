@@ -96,6 +96,7 @@ by setting `prune` we ensure that `namespace: null` is removed from the output
 
 
 
+
 You need a target in this case `demo` which is defined at `inventory/targets/demo.yml`. 
 
 That target defines some stuff
@@ -106,3 +107,16 @@ That target defines some stuff
 * `.parameters.kapitan.compile`, runs the kadet kubernetes generators that where downloaded (as a dependencie) in `system/generators/kubernetes`
 
 * `.parameters.generators`, sets some options for the generator that will be used by the generator as defaults, 
+  * at the end of the day, kapitan will compute the inventory by composing the target and the classes imported from the target
+  * it will be a single inventory object 
+
+
+
+# How kapitan generates the files
+
+* Compute the inventory, 
+* then run the `compile` step that will read for each inventory.nodes[].kapitan.compile
+* So for each target it will get the corresponding compile configuration, in there there will be multiple inpu steps like kadet, jinja, etc, 
+* For each step it will run that, those step have access to the inventory node for that target, for example a jinja2 template can access `inventory.parameters.xxx`
+* In the case of kadet step the inputs are `system/generators/kubernetes`, those files are imported, and those files register generators with `@kgenlib.register_generator()`. The following generators are registered `component`, `generators.argocd.applications`, `generators.argocd.projects`, `clusters`, `generators.kubernetes.namespace`, `certmanager.issuer`, `certmanager.cluster_issuer`, `certmanager.certificate`, `charts`, `generators.kubernetes.gateway`, `ingresses`, `generators.prometheus.gen_pod_monitoring`, `generators.kubernetes.secrets`, `generators.kubernetes.config_maps`,
+* so if you have in your target inventory, a `.parameters.component` that will be input to the kadet generator `component`, that is implemented at [workloads.py:Components](system/generators/kubernetes/workloads.py)
