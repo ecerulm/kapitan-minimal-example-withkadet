@@ -110,7 +110,21 @@ That target defines some stuff
   * at the end of the day, kapitan will compute the inventory by composing the target and the classes imported from the target
   * it will be a single inventory object 
 
+# References
 
+```
+echo -n "myimage:22223" | ./kapitan refs --write plain:targets/demo/theImage -t demo -f -
+```
+
+that generates `./refs/targets/demo/theImage`
+```
+cat refs/targets/demo/theImage 
+data: myimage:22223
+encoding: original
+type: plain
+```
+
+Then in the inventory you can use that value with `?{plain:targets/demo/theImage}`
 
 # How kapitan generates the files
 

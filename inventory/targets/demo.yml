@@ -38,7 +38,7 @@ parameters:
           "manifests.kapicorp.com/generated": "true"
   components:
     kuard:
-      image:  gcr.io/kuar-demo/kuard-amd64:1
+      image: ?{plain:targets/${target_name}/theImage}
       ports:
         myhttp:
           service_port: 80

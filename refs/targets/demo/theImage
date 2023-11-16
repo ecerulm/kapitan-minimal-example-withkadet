@@ -1,0 +1,3 @@
+data: gcr.io/kuard-demo/kuard-amd64:1
+encoding: original
+type: plain

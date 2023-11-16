@@ -56,7 +56,7 @@ spec:
         name: kuard
     spec:
       containers:
-        - image: gcr.io/kuar-demo/kuard-amd64:1
+        - image: gcr.io/kuard-demo/kuard-amd64:1
           imagePullPolicy: Always
           name: kuard
           ports:
